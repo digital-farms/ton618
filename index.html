@@ -21,7 +21,7 @@
             position: relative;
         }
 
-        .stars {
+        .stars, .symbols {
             position: fixed;
             width: 100%;
             height: 100%;
@@ -39,6 +39,35 @@
             z-index: 0;
             animation: starMove var(--duration) linear infinite;
             animation-delay: var(--delay);
+        }
+
+        .symbol {
+            position: absolute;
+            color: #ffffff;
+            font-family: monospace;
+            opacity: 0;
+            z-index: 0;
+            animation: symbolMove var(--duration) linear infinite;
+            animation-delay: var(--delay);
+            transform-origin: center;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.7);
+        }
+
+        @keyframes symbolMove {
+            0% {
+                transform: translate(-50%, -50%) translateZ(-400px) scale(0.1) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: var(--intensity);
+            }
+            90% {
+                opacity: var(--intensity);
+            }
+            100% {
+                transform: translate(-50%, -50%) translateZ(200px) scale(2) rotate(45deg);
+                opacity: 0;
+            }
         }
 
         @keyframes starMove {
@@ -201,6 +230,7 @@
 <body>
     <canvas id="planet-canvas"></canvas>
     <div class="stars"></div>
+    <div class="symbols"></div>
     <div id="timer" class="timer">00:00:00</div>
     <div class="content">
         <div class="title">T<img src="src/pics/ton618_logo.svg" alt="O" class="title-logo">N 618</div>
@@ -486,6 +516,54 @@
             }
 
             createStars();
+
+            // Генерация символов
+            function createSymbols() {
+                const symbolsContainer = document.querySelector('.symbols');
+                const numberOfSymbols = 8; // Очень мало символов
+                const symbols = ['T', 'O', 'N', '6', '1', '8', '+', '-', '=', '/', '>', '<', '^'];
+
+                for (let i = 0; i < numberOfSymbols; i++) {
+                    const symbol = document.createElement('div');
+                    symbol.className = 'symbol';
+                    
+                    let x, y;
+                    do {
+                        x = Math.random() * 100;
+                        y = Math.random() * 100;
+                    } while (
+                        (x > 30 && x < 70) && 
+                        (y > 30 && y < 70)
+                    );
+                    
+                    const size = (Math.random() * 12 + 6) * 0.8; // Базовый размер 6-18px, уменьшенный на 20%
+                    const duration = Math.random() * 8 + 6; // Медленная анимация 6-14 секунд
+                    const delay = Math.random() * 8; // Случайная задержка до 8 секунд
+                    const intensity = Math.random() * 0.5 + 0.3; // Меньшая яркость
+
+                    symbol.style.cssText = `
+                        left: ${x}%;
+                        top: ${y}%;
+                        font-size: ${size}px;
+                        --duration: ${duration}s;
+                        --delay: -${delay}s;
+                        --intensity: ${intensity};
+                    `;
+
+                    // С вероятностью 40% выбираем TON или 618, иначе другие символы
+                    if (Math.random() < 0.4) {
+                        const tonSymbols = ['T', 'O', 'N', '6', '1', '8'];
+                        symbol.textContent = tonSymbols[Math.floor(Math.random() * tonSymbols.length)];
+                    } else {
+                        const otherSymbols = ['+', '-', '=', '/', '>', '<', '^'];
+                        symbol.textContent = otherSymbols[Math.floor(Math.random() * otherSymbols.length)];
+                    }
+
+                    symbolsContainer.appendChild(symbol);
+                }
+            }
+
+            createSymbols();
         });
 
         // Автоматический таймер
