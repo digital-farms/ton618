@@ -1,0 +1,108 @@
+/* Стили для главной страницы */
+.content {
+    position: absolute;
+    top: 150px;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    z-index: 1;
+}
+
+.title {
+    font-size: 45px;
+    font-weight: bold;
+    letter-spacing: 2px;
+    color: white;
+    font-family: 'Orbitron', sans-serif;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    margin-bottom: 20px;
+}
+
+.community-button {
+    background-color: transparent;
+    color: #ffffff;
+    border: 2px solid #ffffff;
+    padding: 12px 30px;
+    font-size: 16px;
+    border-radius: 5px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    position: relative;
+    overflow: hidden;
+}
+
+.community-button:hover {
+    background-color: #ffffff;
+    color: #000000;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+}
+
+.community-button:active {
+    transform: scale(0.98);
+}
+
+.waitlist-button {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    border: none;
+    color: rgba(255, 255, 255, 0.6);
+    padding: 12px 30px;
+    font-size: 16px;
+    animation: pulseText 3s ease-in-out infinite;
+}
+
+@keyframes pulseText {
+    0%, 100% { color: rgba(255, 255, 255, 0.6); }
+    50% { color: rgba(255, 255, 255, 0.9); }
+}
+
+.waitlist-button:active {
+    transform: translateX(-50%) scale(0.98);
+}
+
+#planet-canvas {
+    bottom: 10%;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.wallet-status {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 14px;
+    color: #8B5CF6;
+    margin-top: 10px;
+    text-align: center;
+}
+
+.error-message {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #EF4444;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 14px;
+    z-index: 1000;
+    display: none;
+}
+
+#ton-connect-button {
+    margin: 20px auto;
+    max-width: 300px;
+}
+
+/* Медиа-запросы */
+@media (max-width: 768px) {
+    .title {
+        font-size: 36px;
+    }
+    
+    #planet-canvas {
+        transform: translateX(-50%) scale(0.9);
+    }
+}

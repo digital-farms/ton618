@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TON 618</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #000000;
+            color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .stars {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            perspective: 500px;
+            transform-style: preserve-3d;
+        }
+
+        .star {
+            position: absolute;
+            background: #ffffff;
+            border-radius: 50%;
+            opacity: 0;
+            z-index: 0;
+            animation: starMove var(--duration) linear infinite;
+            animation-delay: var(--delay);
+        }
+
+        @keyframes starMove {
+            0% {
+                transform: translate(-50%, -50%) translateZ(-400px) scale(0.1);
+                opacity: 0;
+            }
+            10% {
+                opacity: var(--intensity);
+            }
+            90% {
+                opacity: var(--intensity);
+            }
+            100% {
+                transform: translate(-50%, -50%) translateZ(200px) scale(2);
+                opacity: 0;
+            }
+        }
+
+        .content {
+            position: relative;
+            z-index: 2;
+            padding-top: 150px;
+            text-align: center;
+        }
+
+        .title {
+            font-size: 45px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            color: white;
+            font-family: 'Orbitron', sans-serif;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0;
+        }
+
+        .title-logo {
+            height: 45px;
+            width: auto;
+            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.5));
+            margin-left: -4px;
+            vertical-align: middle;
+            display: inline-block;
+        }
+
+        .community-button {
+            background-color: transparent;
+            color: #ffffff;
+            border: 2px solid #ffffff;
+            padding: 12px 30px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 5px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .community-button:hover {
+            background-color: #ffffff;
+            color: #000000;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+        }
+
+        .community-button:active {
+            transform: scale(0.98);
+        }
+
+        .waitlist-button {
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.6);
+            padding: 12px 30px;
+            font-size: 16px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            animation: pulseText 3s ease-in-out infinite;
+            z-index: 2;
+        }
+
+        @keyframes pulseText {
+            0%, 100% { color: rgba(255, 255, 255, 0.6); }
+            50% { color: rgba(255, 255, 255, 0.9); }
+        }
+
+        .waitlist-button:active {
+            transform: translateX(-50%) scale(0.98);
+        }
+
+        #planet-canvas {
+            position: absolute;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 800px;
+            height: 800px;
+            z-index: 1;
+        }
+
+        @media (max-width: 768px) {
+            #planet-canvas {
+                width: 100vw;
+                height: 100vw;
+                max-width: 800px;
+                max-height: 800px;
+                bottom: 80px;
+            }
+        }
+
+        .page-transition {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: black;
+            z-index: 1000;
+            transform: translateY(100%);
+            transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .page-transition.active {
+            transform: translateY(0%);
+        }
+
+        .timer {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 16px;
+            color: white;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            letter-spacing: 2px;
+            position: fixed;
+            top: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .timer span {
+            display: inline-block;
+            min-width: 25px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="planet-canvas"></canvas>
+    <div class="stars"></div>
+    <div id="timer" class="timer">00:00:00</div>
+    <div class="content">
+        <div class="title">T<img src="src/pics/ton618_logo.svg" alt="O" class="title-logo">N 618</div>
+        <div id="ton-connect-button"></div>
+        <div id="wallet-status" class="wallet-status">Not connected</div>
+        <div id="error-message" class="error-message" style="display: none;"></div>
+        <button class="community-button">Community</button>
+    </div>
+    <button class="waitlist-button">Join Waitlist</button>
+    <div class="page-transition"></div>
+
+    <script id="planetVertex" type="x-shader/x-vertex">
+        varying vec2 vUv;
+        varying vec3 vNormal;
+        
+        void main() {
+            vUv = uv;
+            vNormal = normalize(normalMatrix * normal);
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+    </script>
+
+    <script id="planetFragment" type="x-shader/x-fragment">
+        varying vec2 vUv;
+        varying vec3 vNormal;
+        uniform float time;
+        uniform vec2 resolution;
+        uniform vec2 mousePosition;
+        uniform float pulseIntensity;
+
+        vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+        vec2 mod289(vec2 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+        vec3 permute(vec3 x) { return mod289(((x*34.0)+1.0)*x); }
+
+        float snoise(vec2 v) {
+            const vec4 C = vec4(0.211324865405187,
+                              0.366025403784439,
+                             -0.577350269189626,
+                              0.024390243902439);
+            vec2 i  = floor(v + dot(v, C.yy));
+            vec2 x0 = v -   i + dot(i, C.xx);
+            vec2 i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
+            vec4 x12 = x0.xyxy + C.xxzz;
+            x12.xy -= i1;
+            i = mod289(i);
+            vec3 p = permute(permute(i.y + vec3(0.0, i1.y, 1.0)) + i.x + vec3(0.0, i1.x, 1.0));
+            vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), 0.0);
+            m = m*m;
+            m = m*m;
+            vec3 x = 2.0 * fract(p * C.www) - 1.0;
+            vec3 h = abs(x) - 0.5;
+            vec3 ox = floor(x + 0.5);
+            vec3 a0 = x - ox;
+            m *= 1.79284291400159 - 0.85373472095314 * (a0*a0 + h*h);
+            vec3 g;
+            g.x  = a0.x  * x0.x  + h.x  * x0.y;
+            g.yz = a0.yz * x12.xz + h.yz * x12.yw;
+            return 130.0 * dot(m, g);
+        }
+
+        vec2 rotate(vec2 v, float a) {
+            float s = sin(a);
+            float c = cos(a);
+            mat2 m = mat2(c, -s, s, c);
+            return m * v;
+        }
+
+        void main() {
+            vec2 coord = vUv;
+            vec3 color = vec3(0.0);
+            float alpha = 0.0;
+
+            // Интерактивное искажение на основе позиции мыши
+            vec2 mouseOffset = (mousePosition - coord) * 0.1;
+            coord += mouseOffset * sin(time * 2.0) * 0.02;
+
+            float dist = distance(coord, vec2(0.5));
+            float circle = smoothstep(0.5, 0.48, dist);
+
+            // Многослойный шум с разными скоростями и направлениями
+            float baseNoise = snoise(rotate(coord * 4.0, time * 0.1));
+            float detailNoise = snoise(rotate(coord * 8.0, -time * 0.15));
+            float microDetail = snoise(coord * 16.0 + vec2(time * 0.2));
+            
+            // Добавляем волновой эффект
+            float wave = sin(dist * 40.0 - time * 2.0) * 0.5 + 0.5;
+            wave *= smoothstep(0.5, 0.3, dist);
+
+            // Комбинируем шумы с разными весами
+            float combinedNoise = baseNoise * 0.5 + detailNoise * 0.3 + microDetail * 0.2;
+            combinedNoise = combinedNoise * 0.7 + wave * 0.3;
+
+            // Создаем динамические цветовые полосы
+            float bands = sin(coord.y * 20.0 + combinedNoise * 2.0 + time * 0.5) * 0.5 + 0.5;
+
+            // Улучшенная атмосфера с пульсацией
+            float atmosphere = smoothstep(0.5, 0.35, dist) - circle;
+            atmosphere *= 1.0 + sin(time * 3.0) * 0.2;
+            vec3 atmosphereColor = mix(
+                vec3(0.4, 0.6, 1.0),
+                vec3(0.6, 0.8, 1.0),
+                sin(time) * 0.5 + 0.5
+            ) * atmosphere * pulseIntensity;
+
+            // Базовый цвет планеты с временной анимацией
+            vec3 planetColor = mix(
+                vec3(0.2, 0.3, 0.8),
+                vec3(0.4, 0.6, 1.0),
+                bands + combinedNoise
+            );
+
+            // Добавляем вихревые эффекты
+            float vortex = snoise(rotate(coord * 5.0, time * 0.5)) * 0.5 + 0.5;
+            planetColor = mix(planetColor, vec3(0.7, 0.8, 1.0), vortex * 0.3);
+
+            // Добавляем variation based on position и время
+            planetColor *= 0.8 + 0.2 * sin(coord.x * 10.0 + time);
+
+            // Комбинируем все эффекты
+            color = (planetColor * circle + atmosphereColor) * (0.8 + 0.2 * sin(time * 0.5));
+            alpha = circle + atmosphere;
+
+            // Добавляем пульсирующее свечение
+            float glow = 0.15 * (1.0 + sin(time * 2.0));
+            color += vec3(0.3, 0.4, 1.0) * glow * (1.0 - dist * 2.0) * pulseIntensity;
+
+            gl_FragColor = vec4(color, alpha);
+        }
+    </script>
+
+    <script>
+        const canvas = document.getElementById('planet-canvas');
+        const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+        renderer.setSize(800, 800);
+        renderer.setPixelRatio(window.devicePixelRatio);
+
+        const scene = new THREE.Scene();
+        const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 10);
+        camera.position.z = 1;
+
+        let mouseX = 0.5;
+        let mouseY = 0.5;
+        let targetPulseIntensity = 1.0;
+        let currentPulseIntensity = 1.0;
+
+        const material = new THREE.ShaderMaterial({
+            uniforms: {
+                time: { value: 0 },
+                resolution: { value: new THREE.Vector2(800, 800) },
+                mousePosition: { value: new THREE.Vector2(0.5, 0.5) },
+                pulseIntensity: { value: 1.0 }
+            },
+            vertexShader: document.getElementById('planetVertex').textContent,
+            fragmentShader: document.getElementById('planetFragment').textContent,
+            transparent: true
+        });
+
+        const geometry = new THREE.CircleGeometry(1, 64);
+        const mesh = new THREE.Mesh(geometry, material);
+        scene.add(mesh);
+
+        // Обработчик движения мыши
+        canvas.addEventListener('mousemove', (event) => {
+            const rect = canvas.getBoundingClientRect();
+            mouseX = (event.clientX - rect.left) / rect.width;
+            mouseY = 1.0 - (event.clientY - rect.top) / rect.height;
+        });
+
+        // Обработчик наведения мыши
+        canvas.addEventListener('mouseenter', () => {
+            targetPulseIntensity = 1.5;
+        });
+
+        canvas.addEventListener('mouseleave', () => {
+            targetPulseIntensity = 1.0;
+            mouseX = 0.5;
+            mouseY = 0.5;
+        });
+
+        function animate(time) {
+            // Плавное изменение интенсивности пульсации
+            currentPulseIntensity += (targetPulseIntensity - currentPulseIntensity) * 0.05;
+
+            const t = time * 0.001;
+            material.uniforms.time.value = t;
+            material.uniforms.mousePosition.value.set(mouseX, mouseY);
+            material.uniforms.pulseIntensity.value = currentPulseIntensity;
+
+            renderer.render(scene, camera);
+            requestAnimationFrame(animate);
+        }
+        requestAnimationFrame(animate);
+
+        // Обработчик изменения размера окна
+        window.addEventListener('resize', () => {
+            const isMobile = window.innerWidth <= 768;
+            let size;
+            
+            if (isMobile) {
+                size = Math.min(window.innerWidth, window.innerWidth);
+            } else {
+                size = 800;
+            }
+            
+            renderer.setSize(size, size);
+            material.uniforms.resolution.value.set(size, size);
+        });
+
+        // Инициализация размера
+        const isMobile = window.innerWidth <= 768;
+        const initialSize = isMobile ? Math.min(window.innerWidth, window.innerWidth) : 800;
+        renderer.setSize(initialSize, initialSize);
+        material.uniforms.resolution.value.set(initialSize, initialSize);
+
+        // Навигация между страницами
+        document.querySelector('.community-button').addEventListener('click', () => {
+            const transition = document.querySelector('.page-transition');
+            transition.classList.add('active');
+            
+            setTimeout(() => {
+                window.location.href = 'waitlist.html';
+            }, 700);
+        });
+
+        document.querySelector('.waitlist-button').addEventListener('click', () => {
+            const transition = document.querySelector('.page-transition');
+            transition.classList.add('active');
+            
+            setTimeout(() => {
+                window.location.href = 'waitlist.html';
+            }, 700);
+        });
+
+        // Анимация при загрузке страницы
+        window.addEventListener('load', () => {
+            const transition = document.querySelector('.page-transition');
+            transition.style.transform = 'translateY(100%)';
+
+            // Генерация звезд
+            function createStars() {
+                const starsContainer = document.querySelector('.stars');
+                const numberOfStars = 100;
+
+                for (let i = 0; i < numberOfStars; i++) {
+                    const star = document.createElement('div');
+                    star.className = 'star';
+                    
+                    // Генерируем позицию, исключая центр
+                    let x, y;
+                    do {
+                        x = Math.random() * 100;
+                        y = Math.random() * 100;
+                    } while (
+                        // Увеличенная центральная область (40% от центра экрана)
+                        (x > 30 && x < 70) && 
+                        (y > 30 && y < 70)
+                    );
+                    
+                    // Случайный размер (маленькие точки)
+                    const size = Math.random() * 2 + 1;
+                    
+                    // Случайная длительность движения (в два раза медленнее)
+                    const duration = Math.random() * 4 + 2;
+                    
+                    // Случайная задержка начала анимации
+                    const delay = Math.random() * 4;
+                    
+                    // Случайная интенсивность свечения
+                    const intensity = Math.random() * 0.7 + 0.3;
+
+                    star.style.cssText = `
+                        left: ${x}%;
+                        top: ${y}%;
+                        width: ${size}px;
+                        height: ${size}px;
+                        --duration: ${duration}s;
+                        --delay: -${delay}s;
+                        --intensity: ${intensity};
+                    `;
+
+                    starsContainer.appendChild(star);
+                }
+            }
+
+            createStars();
+        });
+
+        // Автоматический таймер
+        function updateTimer() {
+            const timerElement = document.getElementById('timer');
+            const now = new Date();
+            
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            const seconds = now.getSeconds().toString().padStart(2, '0');
+            
+            timerElement.innerHTML = `
+                <span>${hours}</span>
+                <span>:</span>
+                <span>${minutes}</span>
+                <span>:</span>
+                <span>${seconds}</span>
+            `;
+        }
+
+        // Запускаем таймер сразу и обновляем каждую секунду
+        updateTimer();
+        setInterval(updateTimer, 1000);
+    </script>
+
+    <script type="module">
+        import { tonConnectUI } from './src/js/ton-connect.js';
+        
+        // TON Connect UI уже инициализирован в ton-connect.js
+        window.tonConnectUI = tonConnectUI;
+    </script>
+</body>
+</html>
