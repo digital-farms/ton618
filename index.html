@@ -264,14 +264,8 @@
         }
 
         @keyframes attention-pulse {
-            0%, 100% {
-                transform: scale(1);
-                filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.3));
-            }
-            50% {
-                transform: scale(1.1);
-                filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.7));
-            }
+            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.3)); }
+            50% { transform: scale(1.1); filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.7)); }
         }
 
         .volume-slider-container {
@@ -323,12 +317,8 @@
         }
 
         @keyframes pulseGlow {
-            0%, 100% {
-                filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.3));
-            }
-            50% {
-                filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.5));
-            }
+            0%, 100% { filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.3)); }
+            50% { filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.5)); }
         }
 
         .audio-control.playing svg {
@@ -734,6 +724,19 @@
         audio.volume = 0.253;
         volumeSlider.value = Math.round(audio.volume * 100);
 
+        // Обработчик изменения громкости
+        volumeSlider.addEventListener('input', (e) => {
+            const volume = e.target.value / 100;
+            audio.volume = volume;
+            
+            // Обновляем иконку в зависимости от громкости
+            if (volume === 0) {
+                audioIcon.querySelector('path').setAttribute('d', soundOffPath);
+            } else {
+                audioIcon.querySelector('path').setAttribute('d', soundOnPath);
+            }
+        });
+
         // Проверяем возможность автовоспроизведения
         audio.play().then(() => {
             isPlaying = true;
@@ -763,19 +766,6 @@
                 audioControl.title = "Click to pause music";
             }
             isPlaying = !isPlaying;
-        });
-
-        // Обработчик изменения громкости
-        volumeSlider.addEventListener('input', (e) => {
-            const volume = e.target.value / 100;
-            audio.volume = volume;
-            
-            // Обновляем иконку в зависимости от громкости
-            if (volume === 0) {
-                audioIcon.querySelector('path').setAttribute('d', soundOffPath);
-            } else if (isPlaying) {
-                audioIcon.querySelector('path').setAttribute('d', soundOnPath);
-            }
         });
     </script>
 </body>
