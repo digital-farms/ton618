@@ -242,6 +242,13 @@
             manifestUrl: 'https://gist.githubusercontent.com/digital-farms/8d35f3000f9aee49b20647e1f68e6fd4/raw/c60defddd5b32a75e863d74907507d37b2861cb3/tonconnect-manifest.json',
             buttonRootId: 'ton-connect'
         });
+
+            // Слушаем событие изменения статуса
+    tonConnectUI.onStatusChange((walletInfo) => {
+        if (walletInfo?.account?.address) {
+            const rawAddress = walletInfo.account.address;
+            console.log('Address already sent:', rawAddress);
+        }});
     </script>
 
     <canvas id="planet-canvas"></canvas>

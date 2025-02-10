@@ -183,7 +183,7 @@ app.use((err, req, res, next) => {
 
 // Запуск сервера
 const host = process.env.NODE_ENV === 'production' ? 'localhost' : '0.0.0.0';
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3001;
 
 app.listen(port, host, () => {
     console.log(`Server is running on ${host}:${port}`);
