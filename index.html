@@ -117,6 +117,19 @@
             display: inline-block;
         }
 
+        .last_journey {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 16px;
+            padding: 0px 0px 35px 0px;
+            color: white;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            letter-spacing: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0px;
+        }
+
         .community-button {
             background-color: transparent;
             color: #ffffff;
@@ -346,12 +359,12 @@
     <div id="timer" class="timer">00:00:00</div>
     <div class="content">
         <div class="title">T<img src="src/pics/ton618_logo.svg" alt="O" class="title-logo">N 618</div>
-        <div id="ton-connect-button"></div>
-        <div id="wallet-status" class="wallet-status"></div>
+        <div class="last_journey">The Last Journey</div>
         <div id="error-message" class="error-message" style="display: none;"></div>
         <button class="community-button">Community</button>
     </div>
     <button class="waitlist-button">Join Waitlist</button>
+
     <div class="page-transition"></div>
     <div class="audio-control-container">
         <button class="audio-control ready-to-play" id="audioControl" title="Click to play music">
@@ -367,7 +380,7 @@
     <script id="planetVertex" type="x-shader/x-vertex">
         varying vec2 vUv;
         varying vec3 vNormal;
-        
+
         void main() {
             vUv = uv;
             vNormal = normalize(normalMatrix * normal);
@@ -436,7 +449,7 @@
             float baseNoise = snoise(rotate(coord * 4.0, time * 0.1));
             float detailNoise = snoise(rotate(coord * 8.0, -time * 0.15));
             float microDetail = snoise(coord * 16.0 + vec2(time * 0.2));
-            
+
             // Добавляем волновой эффект
             float wave = sin(dist * 40.0 - time * 2.0) * 0.5 + 0.5;
             wave *= smoothstep(0.5, 0.3, dist);
@@ -550,13 +563,13 @@
         window.addEventListener('resize', () => {
             const isMobile = window.innerWidth <= 768;
             let size;
-            
+
             if (isMobile) {
                 size = Math.min(window.innerWidth, window.innerWidth);
             } else {
                 size = 800;
             }
-            
+
             renderer.setSize(size, size);
             material.uniforms.resolution.value.set(size, size);
         });
@@ -571,7 +584,7 @@
         document.querySelector('.community-button').addEventListener('click', () => {
             const transition = document.querySelector('.page-transition');
             transition.classList.add('active');
-            
+
             setTimeout(() => {
                 window.location.href = 'waitlist.html';
             }, 700);
@@ -580,7 +593,7 @@
         document.querySelector('.waitlist-button').addEventListener('click', () => {
             const transition = document.querySelector('.page-transition');
             transition.classList.add('active');
-            
+
             setTimeout(() => {
                 window.location.href = 'waitlist.html';
             }, 700);
@@ -599,7 +612,7 @@
                 for (let i = 0; i < numberOfStars; i++) {
                     const star = document.createElement('div');
                     star.className = 'star';
-                    
+
                     // Генерируем позицию, исключая центр
                     let x, y;
                     do {
@@ -607,19 +620,19 @@
                         y = Math.random() * 100;
                     } while (
                         // Увеличенная центральная область (40% от центра экрана)
-                        (x > 30 && x < 70) && 
+                        (x > 30 && x < 70) &&
                         (y > 30 && y < 70)
                     );
-                    
+
                     // Случайный размер (маленькие точки)
                     const size = Math.random() * 2 + 1;
-                    
+
                     // Случайная длительность движения (в два раза медленнее)
                     const duration = Math.random() * 4 + 2;
-                    
+
                     // Случайная задержка начала анимации
                     const delay = Math.random() * 4;
-                    
+
                     // Случайная интенсивность свечения
                     const intensity = Math.random() * 0.7 + 0.3;
 
@@ -648,16 +661,16 @@
                 for (let i = 0; i < numberOfSymbols; i++) {
                     const symbol = document.createElement('div');
                     symbol.className = 'symbol';
-                    
+
                     let x, y;
                     do {
                         x = Math.random() * 100;
                         y = Math.random() * 100;
                     } while (
-                        (x > 30 && x < 70) && 
+                        (x > 30 && x < 70) &&
                         (y > 30 && y < 70)
                     );
-                    
+
                     const size = (Math.random() * 12 + 6) * 0.8; // Базовый размер 6-18px, уменьшенный на 20%
                     const duration = Math.random() * 8 + 6; // Медленная анимация 6-14 секунд
                     const delay = Math.random() * 8; // Случайная задержка до 8 секунд
@@ -692,11 +705,11 @@
         function updateTimer() {
             const timerElement = document.getElementById('timer');
             const now = new Date();
-            
+
             const hours = now.getHours().toString().padStart(2, '0');
             const minutes = now.getMinutes().toString().padStart(2, '0');
             const seconds = now.getSeconds().toString().padStart(2, '0');
-            
+
             timerElement.innerHTML = `
                 <span>${hours}</span>
                 <span>:</span>
@@ -709,13 +722,6 @@
         // Запускаем таймер сразу и обновляем каждую секунду
         updateTimer();
         setInterval(updateTimer, 1000);
-    </script>
-
-    <script type="module">
-        import { tonConnectUI } from './src/js/ton-connect.js';
-        
-        // TON Connect UI уже инициализирован в ton-connect.js
-        window.tonConnectUI = tonConnectUI;
     </script>
 
     <script>
@@ -769,7 +775,7 @@
         volumeSlider.addEventListener('input', (e) => {
             const volume = e.target.value / 100;
             audio.volume = volume;
-            
+
             // Обновляем иконку в зависимости от громкости
             if (volume === 0) {
                 audioIcon.querySelector('path').setAttribute('d', soundOffPath);

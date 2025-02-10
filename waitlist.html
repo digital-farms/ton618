@@ -213,7 +213,7 @@
         }
 
         .back-button:hover {
-            animation: 
+            animation:
                 floatUpDown 3s ease-in-out infinite,
                 glowPulseHover 6s cubic-bezier(0.4, 0, 0.6, 1) infinite;
         }
@@ -244,16 +244,14 @@
     <div class="content">
         <button class="waitlist-button">WAITLIST SOON</button>
     </div>
-    <div class="logos">
-        <img src="src/pics/voidexe_logo.svg" alt="VoidExe" onclick="window.Telegram.WebApp.openLink('https://t.me/+0uT_XDLIzUZlY2Yy')">
-    </div>
+
     <canvas id="planet-canvas"></canvas>
     <div class="page-transition"></div>
 
     <script id="planetVertex" type="x-shader/x-vertex">
         varying vec2 vUv;
         varying vec3 vNormal;
-        
+
         void main() {
             vUv = uv;
             vNormal = normalize(normalMatrix * normal);
@@ -323,7 +321,7 @@
             float baseNoise = snoise(rotate(coord * 4.0, time * 0.1));
             float detailNoise = snoise(rotate(coord * 8.0, -time * 0.15));
             float microDetail = snoise(coord * 16.0 + vec2(time * 0.2));
-            
+
             // Добавляем волновой эффект
             float wave = sin(dist * 40.0 - time * 2.0) * 0.5 + 0.5;
             wave *= smoothstep(0.5, 0.3, dist);
@@ -427,7 +425,7 @@
         document.querySelector('.waitlist-button').addEventListener('click', () => {
             const transition = document.querySelector('.page-transition');
             transition.classList.add('active');
-            
+
             setTimeout(() => {
                 window.location.href = 'index.html';
             }, 700);
@@ -441,12 +439,12 @@
             // Генерация звезд
             function createStars() {
                 const starsContainer = document.querySelector('.stars');
-                const numberOfStars = 100; 
+                const numberOfStars = 100;
 
                 for (let i = 0; i < numberOfStars; i++) {
                     const star = document.createElement('div');
                     star.className = 'star';
-                    
+
                     // Генерируем позицию, исключая центр
                     let x, y;
                     do {
@@ -454,19 +452,19 @@
                         y = Math.random() * 100;
                     } while (
                         // Увеличенная центральная область (40% от центра экрана)
-                        (x > 30 && x < 70) && 
+                        (x > 30 && x < 70) &&
                         (y > 30 && y < 70)
                     );
-                    
+
                     // Случайный размер (маленькие точки)
                     const size = Math.random() * 2 + 1;
-                    
+
                     // Случайная длительность движения
                     const duration = Math.random() * 4 + 2;
-                    
+
                     // Случайная задержка начала анимации
                     const delay = Math.random() * 4;
-                    
+
                     // Случайная интенсивность свечения
                     const intensity = Math.random() * 0.7 + 0.3;
 
@@ -492,16 +490,16 @@
                 for (let i = 0; i < numberOfSymbols; i++) {
                     const symbol = document.createElement('div');
                     symbol.className = 'symbol';
-                    
+
                     let x, y;
                     do {
                         x = Math.random() * 100;
                         y = Math.random() * 100;
                     } while (
-                        (x > 30 && x < 70) && 
+                        (x > 30 && x < 70) &&
                         (y > 30 && y < 70)
                     );
-                    
+
                     const size = (Math.random() * 12 + 6) * 0.8; // Базовый размер 6-18px, уменьшенный на 20%
                     const duration = Math.random() * 8 + 6; // Медленная анимация 6-14 секунд
                     const delay = Math.random() * 8; // Случайная задержка до 8 секунд

@@ -4,8 +4,6 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const cors = require('cors');
 require('dotenv').config();
-const waitlistService = require('./src/services/waitlistService');
-const walletService = require('./src/services/walletService');
 
 const app = express();
 
@@ -60,7 +58,7 @@ app.use(express.json()); // Для парсинга JSON в теле запро�
 
 // Настройка CORS
 const corsOptions = {
-    origin: process.env.NODE_ENV === 'production' 
+    origin: process.env.NODE_ENV === 'production'
         ? ['https://your-domain.com']
         : 'http://localhost:3000',
     methods: ['GET', 'POST'], // Добавили POST для работы с waitlist
@@ -104,10 +102,10 @@ app.get('/api/waitlist', async (req, res) => {
 app.post('/api/wallet/connect', async (req, res) => {
     try {
         const { walletAddress, userId } = req.body;
-        
+
         if (!walletAddress || !userId) {
-            return res.status(400).json({ 
-                error: 'Wallet address and user ID are required' 
+            return res.status(400).json({
+                error: 'Wallet address and user ID are required'
             });
         }
 
@@ -122,10 +120,10 @@ app.post('/api/wallet/connect', async (req, res) => {
 app.post('/api/wallet/disconnect', async (req, res) => {
     try {
         const { walletAddress } = req.body;
-        
+
         if (!walletAddress) {
-            return res.status(400).json({ 
-                error: 'Wallet address is required' 
+            return res.status(400).json({
+                error: 'Wallet address is required'
             });
         }
 
@@ -141,11 +139,11 @@ app.get('/api/wallet/:address', async (req, res) => {
     try {
         const { address } = req.params;
         const wallet = await walletService.getWalletByAddress(address);
-        
+
         if (!wallet) {
             return res.status(404).json({ error: 'Wallet not found' });
         }
-        
+
         res.json(wallet);
     } catch (error) {
         console.error('Wallet fetch error:', error);
@@ -165,11 +163,15 @@ app.get('/api/wallet/user/:userId', async (req, res) => {
 });
 
 // Маршруты для страниц
+app.get('/index.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-app.get('/waitlist', (req, res) => {
+app.get('/waitlist.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'waitlist.html'));
 });
 

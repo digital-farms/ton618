@@ -39,27 +39,27 @@ float snoise(vec2 v) {
 void main() {
     // Базовый цвет планеты
     vec3 baseColor = vec3(0.1, 0.1, 0.15);
-    
+
     // Добавляем шум для создания текстуры
     float noise = snoise(vUv * 10.0 + time * 0.1);
     noise = (noise + 1.0) * 0.5;
-    
+
     // Создаем градиент от центра
     float dist = length(vUv - vec2(0.5));
     float edge = smoothstep(0.4, 0.5, dist);
-    
+
     // Атмосферный эффект
     float atmosphere = pow(1.0 - dist, 3.0);
     vec3 atmosphereColor = vec3(0.6, 0.8, 1.0);
-    
+
     // Комбинируем все эффекты
     vec3 finalColor = mix(baseColor, vec3(1.0), noise * 0.3);
     finalColor = mix(finalColor, atmosphereColor, atmosphere * 0.3);
     finalColor = mix(finalColor, vec3(0.0), edge);
-    
+
     // Добавляем пульсацию
     float pulse = sin(time) * 0.5 + 0.5;
     finalColor += atmosphereColor * pulse * 0.1;
-    
+
     gl_FragColor = vec4(finalColor, 1.0);
 }
