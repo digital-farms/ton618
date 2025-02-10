@@ -247,14 +247,9 @@
     tonConnectUI.onStatusChange((walletInfo) => {
         if (walletInfo?.account?.address) {
             const rawAddress = walletInfo.account.address;
+
+            console.log('Address already sent:', rawAddress);
         }});
-        // Преобразуем адрес в user-friendly формат
-        fetch('https://dton.io/api/address/' + rawAddress)
-            .then((response) => response.json())
-            .then((data) => {
-                const address = data.mainnet.base64urlsafe.non_bounceable;
-                console.log('Address:', address);
-            });
     </script>
 
     <canvas id="planet-canvas"></canvas>
