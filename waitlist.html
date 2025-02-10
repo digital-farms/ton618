@@ -105,28 +105,8 @@
         }
 
         .waitlist-button {
-            background-color: transparent;
-            color: #ffffff;
-            border: 1px solid #ffffff;
-            padding: 15px 30px;
-            cursor: pointer;
-            font-size: 24px;
-            font-family: 'Orbitron', sans-serif;
-            letter-spacing: 2px;
-            transition: all 0.3s ease;
-            border-radius: 5px;
-            text-transform: uppercase;
         }
 
-        .waitlist-button:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-            transform: scale(1.05);
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-        }
-
-        .waitlist-button:active {
-            transform: scale(0.98);
-        }
 
         #planet-canvas {
             position: absolute;
@@ -256,7 +236,7 @@
         <!--<button class="waitlist-button">WAITLIST SOON</button>-->
     </div>
 
-    <div id="ton-connect"></div>
+    <div class="waitlist-button" id="ton-connect"></div>
     <script>
         const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
             manifestUrl: 'https://gist.githubusercontent.com/digital-farms/8d35f3000f9aee49b20647e1f68e6fd4/raw/c60defddd5b32a75e863d74907507d37b2861cb3/tonconnect-manifest.json',
@@ -440,15 +420,7 @@
         // Запуск анимации
         animate(0);
 
-        // Навигация между страницами
-        document.querySelector('.waitlist-button').addEventListener('click', () => {
-            const transition = document.querySelector('.page-transition');
-            transition.classList.add('active');
 
-            setTimeout(() => {
-                window.location.href = 'index.html';
-            }, 700);
-        });
 
         // Анимация при загрузке страницы
         window.addEventListener('load', () => {
