@@ -243,13 +243,43 @@
             buttonRootId: 'ton-connect'
         });
 
-            // Слушаем событие изменения статуса
-    tonConnectUI.onStatusChange((walletInfo) => {
-        if (walletInfo?.account?.address) {
-            const rawAddress = walletInfo.account.address;
+        // Слушаем событие изменения статуса
+        tonConnectUI.onStatusChange((walletInfo) => {
+            if (walletInfo?.account?.address) {
+                const rawAddress = walletInfo.account.address;
+                
+                // Проверяем, был ли адрес уже отправлен
+		        if (localStorage.getItem('sentAddress') === rawAddress) {
+			        console.log('Address already sent:', rawAddress);
+			        return;
+		        }
 
-            console.log('Address already sent:', rawAddress);
-        }});
+                // Преобразуем адрес в user-friendly формат
+    		    fetch('https://dton.io/api/address/' + rawAddress)
+	        	.then((response) => response.json())
+		        .then((data) => {
+				    const walletAddress = data.mainnet.base64urlsafe.non_bounceable;
+
+				    // Отправляем user-friendly адрес на сервер
+				    fetch('/api/wallet/connect', {
+					    method: 'POST',
+					    headers: { 'Content-Type': 'application/json' },
+					    body: JSON.stringify({ walletAddress }),
+				    })
+				    .then((response) => {
+					    console.log('Response:', response)
+					    // Сохраняем адрес в LocalStorage
+                        localStorage.setItem('sentAddress', rawAddress);
+				    })
+				    .catch((error) => console.error('Error:', error));
+			    })
+			    .catch((error) => console.error('API Error:', error));
+            }
+        });
+        
+
+
+
     </script>
 
     <canvas id="planet-canvas"></canvas>

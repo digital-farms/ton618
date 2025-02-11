@@ -34,4 +34,6 @@ Thumbs.db
 
 # Logs
 /logs
-*.log
+*.logg
+
+google-credentials.json
