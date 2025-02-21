@@ -5,58 +5,27 @@ const rateLimit = require('express-rate-limit');
 const cors = require('cors');
 const { createClient } = require('@supabase/supabase-js');
 require('dotenv').config();
-const { addWalletToSheet } = require('./googleSheets');
 
 const app = express();
 
 // Настройка CSP
-const cspOptions = {
-    directives: {
-        defaultSrc: ["'self'"],
-        scriptSrc: [
-            "'self'",
-            "'unsafe-inline'",
-            'https://cdnjs.cloudflare.com',
-            'https://ton.org', // Для TON Connect
-            'https://unpkg.com',
-        ],
-        styleSrc: [
-            "'self'",
-            "'unsafe-inline'",
-            'https://fonts.googleapis.com',
-        ],
-        fontSrc: [
-            "'self'",
-            'https://fonts.gstatic.com',
-            'https://fonts.googleapis.com',
-        ],
-        imgSrc: [
-            "'self'",
-            'data:',
-            'blob:',
-        ],
-        connectSrc: [
-            "'self'",
-            process.env.SUPABASE_URL,
-            'https://ton.org', // Для TON Connect
-        ],
-        mediaSrc: ["'self'"],
-        objectSrc: ["'none'"],
-        frameAncestors: ["'none'"],
-        formAction: ["'self'"],
-        baseUri: ["'self'"],
-        workerSrc: ["'self'", 'blob:'],
-        manifestSrc: ["'self'"],
-        upgradeInsecureRequests: process.env.NODE_ENV === 'production' ? [] : null
-    }
-};
-
-// Основные middleware
 app.use(helmet({
-    contentSecurityPolicy: cspOptions,
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'self'"],
+            connectSrc: ["'self'", "https://*", "wss://*"],
+            scriptSrc: ["'self'", "'unsafe-inline'", "https://*"],
+            styleSrc: ["'self'", "'unsafe-inline'", "https://*"],
+            imgSrc: ["'self'", "data:", "blob:", "https://*"],
+            fontSrc: ["'self'", "https://*", "data:"],
+            frameSrc: ["'self'", "https://*"]
+        }
+    },
     crossOriginEmbedderPolicy: false,
     crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
+
+// Основные middleware
 app.use(express.json()); // Для парсинга JSON в теле запроса
 
 // Настройка CORS
@@ -118,10 +87,17 @@ app.post('/api/wallet/connect', async (req, res) => {
         }
         console.log(`Received wallet address: ${walletAddress}`);
 
-        // Отправляем данные в Google Таблицы
-        await addWalletToSheet(walletAddress);
-    
-        res.json({ success: true, walletAddress });
+        // Сохраняем в Supabase
+        const { data, error } = await supabase
+            .from('wallets')
+            .insert([{ address: walletAddress }]);
+
+        if (error) {
+            console.error('Supabase error:', error);
+            throw error;
+        }
+
+        res.json({ success: true, data });
     } catch (error) {
         console.error('Wallet connection error:', error);
         res.status(500).json({ error: 'Internal server error' });
