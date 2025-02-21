@@ -5,6 +5,7 @@ const rateLimit = require('express-rate-limit');
 const cors = require('cors');
 const { createClient } = require('@supabase/supabase-js');
 require('dotenv').config();
+const { addWalletToSheet } = require('./googleSheets');
 
 const app = express();
 
@@ -52,7 +53,7 @@ const cspOptions = {
 
 // Основные middleware
 app.use(helmet({
-    contentSecurityPolicy: false,
+    contentSecurityPolicy: cspOptions,
     crossOriginEmbedderPolicy: false,
     crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
@@ -109,16 +110,18 @@ app.get('/api/waitlist', async (req, res) => {
 // API endpoints для работы с кошельками
 app.post('/api/wallet/connect', async (req, res) => {
     try {
-        const { walletAddress, userId } = req.body;
-
-        if (!walletAddress || !userId) {
+        const { walletAddress } = req.body;
+        if (!walletAddress) {
             return res.status(400).json({
-                error: 'Wallet address and user ID are required'
+                error: 'Wallet address is required'
             });
         }
+        console.log(`Received wallet address: ${walletAddress}`);
 
-        const result = await walletService.connectWallet(walletAddress, userId);
-        res.json(result);
+        // Отправляем данные в Google Таблицы
+        await addWalletToSheet(walletAddress);
+    
+        res.json({ success: true, walletAddress });
     } catch (error) {
         console.error('Wallet connection error:', error);
         res.status(500).json({ error: 'Internal server error' });

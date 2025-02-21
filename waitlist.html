@@ -266,30 +266,26 @@
             buttonRootId: 'ton-connect'
         });
 
-        // Функция для сохранения адреса
-        async function saveWalletAddress(address) {
-            try {
-                const response = await fetch('/api/save-wallet', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ address: address })
-                });
-                const data = await response.json();
-                console.log('Wallet saved:', data);
-            } catch (error) {
-                console.error('Error saving wallet:', error);
-            }
-        }
+            // Слушаем событие изменения статуса
+    tonConnectUI.onStatusChange((walletInfo) => {
+        if (walletInfo?.account?.address) {
+            const rawAddress = walletInfo.account.address;
+            
+            // Отправляем адрес на сервер
+            fetch('/api/wallet/connect', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ walletAddress: rawAddress })
+            })
+            .then(response => response.json())
+            .then(data => console.log('Response:', data))
+            .catch(error => console.error('Error:', error));
 
-        // Слушаем событие подключения кошелька
-        tonConnectUI.onStatusChange((wallet) => {
-            if (wallet) {
-                console.log('Wallet connected:', wallet.account.address);
-                saveWalletAddress(wallet.account.address);
-            }
-        });
+            console.log('Address sent:', rawAddress);
+        }
+    });
     </script>
 
     <canvas id="planet-canvas"></canvas>
