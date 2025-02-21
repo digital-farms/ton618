@@ -29,6 +29,8 @@
             z-index: 0;
             perspective: 500px;
             transform-style: preserve-3d;
+            opacity: 0;
+            transition: opacity 1s ease-in;
         }
 
         .star {
@@ -92,6 +94,8 @@
             z-index: 2;
             padding-top: 150px;
             text-align: center;
+            opacity: 0;
+            transition: opacity 1s ease-in;
         }
 
         .title {
@@ -277,14 +281,8 @@
         }
 
         @keyframes attention-pulse {
-            0%, 100% {
-                transform: scale(1);
-                filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.3));
-            }
-            50% {
-                transform: scale(1.1);
-                filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.7));
-            }
+            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.3)); }
+            50% { transform: scale(1.1); filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.7)); }
         }
 
         .volume-slider-container {
@@ -336,20 +334,74 @@
         }
 
         @keyframes pulseGlow {
-            0%, 100% {
-                filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.3));
-            }
-            50% {
-                filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.5));
-            }
+            0%, 100% { filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.3)); }
+            50% { filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.5)); }
         }
 
         .audio-control.playing svg {
             animation: pulseGlow 2s infinite;
         }
+
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 1s ease-out;
+        }
+
+        .loader {
+            width: 100px;
+            height: 100px;
+            border: 2px solid transparent;
+            border-top-color: #333;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            position: relative;
+        }
+
+        .loader:before {
+            content: '';
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            right: 5px;
+            bottom: 5px;
+            border: 2px solid transparent;
+            border-top-color: #666;
+            border-radius: 50%;
+            animation: spin 2s linear infinite;
+        }
+
+        .loader:after {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            right: 15px;
+            bottom: 15px;
+            border: 2px solid transparent;
+            border-top-color: #999;
+            border-radius: 50%;
+            animation: spin 1.5s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
+    <div id="loading-screen">
+        <div class="loader"></div>
+    </div>
     <audio id="bgAudio" loop crossorigin="anonymous">
         <source src="audio/sumno1.mp3" type="audio/mpeg">
     </audio>
@@ -601,105 +653,120 @@
 
         // Анимация при загрузке страницы
         window.addEventListener('load', () => {
-            const transition = document.querySelector('.page-transition');
-            transition.style.transform = 'translateY(100%)';
-
-            // Генерация звезд
-            function createStars() {
-                const starsContainer = document.querySelector('.stars');
-                const numberOfStars = 100;
-
-                for (let i = 0; i < numberOfStars; i++) {
-                    const star = document.createElement('div');
-                    star.className = 'star';
-
-                    // Генерируем позицию, исключая центр
-                    let x, y;
-                    do {
-                        x = Math.random() * 100;
-                        y = Math.random() * 100;
-                    } while (
-                        // Увеличенная центральная область (40% от центра экрана)
-                        (x > 30 && x < 70) &&
-                        (y > 30 && y < 70)
-                    );
-
-                    // Случайный размер (маленькие точки)
-                    const size = Math.random() * 2 + 1;
-
-                    // Случайная длительность движения (в два раза медленнее)
-                    const duration = Math.random() * 4 + 2;
-
-                    // Случайная задержка начала анимации
-                    const delay = Math.random() * 4;
-
-                    // Случайная интенсивность свечения
-                    const intensity = Math.random() * 0.7 + 0.3;
-
-                    star.style.cssText = `
-                        left: ${x}%;
-                        top: ${y}%;
-                        width: ${size}px;
-                        height: ${size}px;
-                        --duration: ${duration}s;
-                        --delay: -${delay}s;
-                        --intensity: ${intensity};
-                    `;
-
-                    starsContainer.appendChild(star);
-                }
-            }
-
+            const loadingScreen = document.getElementById('loading-screen');
+            const content = document.querySelector('.content');
+            const stars = document.querySelector('.stars');
+            const symbols = document.querySelector('.symbols');
+            
+            // Создаем звезды и символы
             createStars();
-
-            // Генерация символов
-            function createSymbols() {
-                const symbolsContainer = document.querySelector('.symbols');
-                const numberOfSymbols = 8; // Очень мало символов
-                const symbols = ['T', 'O', 'N', '6', '1', '8', '+', '-', '=', '/', '>', '<', '^'];
-
-                for (let i = 0; i < numberOfSymbols; i++) {
-                    const symbol = document.createElement('div');
-                    symbol.className = 'symbol';
-
-                    let x, y;
-                    do {
-                        x = Math.random() * 100;
-                        y = Math.random() * 100;
-                    } while (
-                        (x > 30 && x < 70) &&
-                        (y > 30 && y < 70)
-                    );
-
-                    const size = (Math.random() * 12 + 6) * 0.8; // Базовый размер 6-18px, уменьшенный на 20%
-                    const duration = Math.random() * 8 + 6; // Медленная анимация 6-14 секунд
-                    const delay = Math.random() * 8; // Случайная задержка до 8 секунд
-                    const intensity = Math.random() * 0.5 + 0.3; // Меньшая яркость
-
-                    symbol.style.cssText = `
-                        left: ${x}%;
-                        top: ${y}%;
-                        font-size: ${size}px;
-                        --duration: ${duration}s;
-                        --delay: -${delay}s;
-                        --intensity: ${intensity};
-                    `;
-
-                    // С вероятностью 40% выбираем TON или 618, иначе другие символы
-                    if (Math.random() < 0.4) {
-                        const tonSymbols = ['T', 'O', 'N', '6', '1', '8'];
-                        symbol.textContent = tonSymbols[Math.floor(Math.random() * tonSymbols.length)];
-                    } else {
-                        const otherSymbols = ['+', '-', '=', '/', '>', '<', '^'];
-                        symbol.textContent = otherSymbols[Math.floor(Math.random() * otherSymbols.length)];
-                    }
-
-                    symbolsContainer.appendChild(symbol);
-                }
-            }
-
             createSymbols();
+            
+            setTimeout(() => {
+                // Показываем контент
+                content.style.opacity = '1';
+                stars.style.opacity = '1';
+                symbols.style.opacity = '1';
+                
+                // Скрываем экран загрузки
+                loadingScreen.style.opacity = '0';
+                setTimeout(() => {
+                    loadingScreen.style.display = 'none';
+                }, 1000);
+            }, 1500);
         });
+
+        // Генерация звезд
+        function createStars() {
+            const starsContainer = document.querySelector('.stars');
+            const numberOfStars = 100;
+
+            for (let i = 0; i < numberOfStars; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+
+                // Генерируем позицию, исключая центр
+                let x, y;
+                do {
+                    x = Math.random() * 100;
+                    y = Math.random() * 100;
+                } while (
+                    // Увеличенная центральная область (40% от центра экрана)
+                    (x > 30 && x < 70) &&
+                    (y > 30 && y < 70)
+                );
+
+                // Случайный размер (маленькие точки)
+                const size = Math.random() * 2 + 1;
+
+                // Случайная длительность движения (в два раза медленнее)
+                const duration = Math.random() * 4 + 2;
+
+                // Случайная задержка начала анимации
+                const delay = Math.random() * 4;
+
+                // Случайная интенсивность свечения
+                const intensity = Math.random() * 0.7 + 0.3;
+
+                star.style.cssText = `
+                    left: ${x}%;
+                    top: ${y}%;
+                    width: ${size}px;
+                    height: ${size}px;
+                    --duration: ${duration}s;
+                    --delay: -${delay}s;
+                    --intensity: ${intensity};
+                `;
+
+                starsContainer.appendChild(star);
+            }
+        }
+
+        // Генерация символов
+        function createSymbols() {
+            const symbolsContainer = document.querySelector('.symbols');
+            const numberOfSymbols = 8; // Очень мало символов
+            const symbols = ['T', 'O', 'N', '6', '1', '8', '+', '-', '=', '/', '>', '<', '^'];
+
+            for (let i = 0; i < numberOfSymbols; i++) {
+                const symbol = document.createElement('div');
+                symbol.className = 'symbol';
+
+                let x, y;
+                do {
+                    x = Math.random() * 100;
+                    y = Math.random() * 100;
+                } while (
+                    (x > 30 && x < 70) &&
+                    (y > 30 && y < 70)
+                );
+
+                const size = (Math.random() * 12 + 6) * 0.8; // Базовый размер 6-18px, уменьшенный на 20%
+                const duration = Math.random() * 8 + 6; // Медленная анимация 6-14 секунд
+                const delay = Math.random() * 8; // Случайная задержка до 8 секунд
+                const intensity = Math.random() * 0.5 + 0.3; // Меньшая яркость
+
+                symbol.style.cssText = `
+                    left: ${x}%;
+                    top: ${y}%;
+                    font-size: ${size}px;
+                    --duration: ${duration}s;
+                    --delay: -${delay}s;
+                    --intensity: ${intensity};
+                `;
+
+                // С вероятностью 40% выбираем TON или 618, иначе другие символы
+                if (Math.random() < 0.4) {
+                    const tonSymbols = ['T', 'O', 'N', '6', '1', '8'];
+                    symbol.textContent = tonSymbols[Math.floor(Math.random() * tonSymbols.length)];
+                } else {
+                    const otherSymbols = ['+', '-', '=', '/', '>', '<', '^'];
+                    symbol.textContent = otherSymbols[Math.floor(Math.random() * otherSymbols.length)];
+                }
+
+                symbolsContainer.appendChild(symbol);
+            }
+        }
 
         // Автоматический таймер
         function updateTimer() {
