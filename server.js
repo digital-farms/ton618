@@ -3,6 +3,7 @@ const path = require('path');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const cors = require('cors');
+const { createClient } = require('@supabase/supabase-js');
 require('dotenv').config();
 
 const app = express();
@@ -16,6 +17,7 @@ const cspOptions = {
             "'unsafe-inline'",
             'https://cdnjs.cloudflare.com',
             'https://ton.org', // Для TON Connect
+            'https://unpkg.com',
         ],
         styleSrc: [
             "'self'",
@@ -50,7 +52,7 @@ const cspOptions = {
 
 // Основные middleware
 app.use(helmet({
-    contentSecurityPolicy: cspOptions,
+    contentSecurityPolicy: false,
     crossOriginEmbedderPolicy: false,
     crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
@@ -72,6 +74,12 @@ const limiter = rateLimit({
     max: 100
 });
 app.use(limiter);
+
+// Инициализация Supabase
+const supabase = createClient(
+    'https://kozbsjeqafhthbwekhjl.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtvemJzamVxYWZodGhid2VraGpsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDAxNjUyNTIsImV4cCI6MjA1NTc0MTI1Mn0.jjwhtP3qcpI7bsEUXatGQ3OzTXwD6tqCHw9a6MC5d5k'
+);
 
 // Статические файлы
 app.use('/src', express.static(path.join(__dirname, 'src')));
@@ -162,9 +170,30 @@ app.get('/api/wallet/user/:userId', async (req, res) => {
     }
 });
 
+// API endpoint для сохранения адреса кошелька
+app.post('/api/save-wallet', async (req, res) => {
+    try {
+        const { address } = req.body;
+        const { data, error } = await supabase
+            .from('wallets')
+            .insert([{ address }]);
+
+        if (error) throw error;
+
+        res.json({ success: true, data });
+    } catch (error) {
+        console.error('Error saving wallet:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
 // Маршруты для страниц
 app.get('/index.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+app.get('/dashboard.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'dashboard.html'));
 });
 
 app.get('/', (req, res) => {

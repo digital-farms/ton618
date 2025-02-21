@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Личный кабинет</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #000000;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .stars {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            animation: rotate 60s linear infinite;
+            transform-origin: center center;
+        }
+
+        @keyframes rotate {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .star {
+            position: absolute;
+            background: #ffffff;
+            border-radius: 50%;
+            opacity: 0.5; /* Полупрозрачные звезды */
+            animation: twinkle 3s infinite alternate; /* Добавляем анимацию */
+        }
+
+        @keyframes twinkle {
+            0% {
+                opacity: 0; /* Начальная непрозрачность */
+            }
+            100% {
+                opacity: 1; /* Конечная непрозрачность */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="stars"></div>
+    <script>
+        function createStars() {
+            const starsContainer = document.querySelector('.stars');
+            const numberOfStars = 100;
+
+            for (let i = 0; i < numberOfStars; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+
+                // Генерируем звезды по кругу
+                const angle = (i / numberOfStars) * Math.PI * 2;
+                const radius = Math.random() * 40 + 10; // Радиус от 10% до 50% от центра
+                const x = 50 + radius * Math.cos(angle); // 50% - центр
+                const y = 50 + radius * Math.sin(angle); // 50% - центр
+
+                // Случайный размер
+                const size = Math.random() * 3 + 1;
+
+                star.style.cssText = `
+                    left: ${x}%;
+                    top: ${y}%;
+                    width: ${size}px;
+                    height: ${size}px;
+                    animation-duration: ${Math.random() * 2 + 2}s;
+                `;
+
+                starsContainer.appendChild(star);
+            }
+        }
+
+        createStars(); // Генерируем звезды
+    </script>
+</body>
+</html>
