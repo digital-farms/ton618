@@ -35,11 +35,13 @@
             padding: 0;
             background-color: #000000;
             color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
             position: relative;
+            opacity: 0;
+            transition: opacity 0.5s ease;
         }
 
         .stars, .symbols {
@@ -50,6 +52,17 @@
             z-index: 0;
             perspective: 500px;
             transform-style: preserve-3d;
+            transition: opacity 0.5s ease;
+        }
+
+        .content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 1;
+            transition: opacity 0.5s ease;
         }
 
         .star {
@@ -107,15 +120,6 @@
             }
         }
 
-        .content {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-            z-index: 1;
-        }
-
         #ton-connect {
             position: absolute;
             top: 50%;
@@ -144,14 +148,11 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: black;
-            z-index: 1000;
-            transform: translateY(100%);
-            transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .page-transition.active {
-            transform: translateY(0%);
+            background: #000;
+            z-index: 9999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
         }
 
         .logos {
@@ -249,6 +250,7 @@
     </style>
 </head>
 <body>
+    <div class="page-transition"></div>
     <div class="stars"></div>
     <div class="symbols"></div>
     <a href="index.html" class="back-button">
@@ -289,7 +291,6 @@
     </script>
 
     <canvas id="planet-canvas"></canvas>
-    <div class="page-transition"></div>
 
     <script id="planetVertex" type="x-shader/x-vertex">
         varying vec2 vUv;
@@ -564,6 +565,41 @@
 
             createStars();
             createSymbols();
+        });
+    </script>
+    <script>
+        function transitionToPage(href) {
+            const transition = document.querySelector('.page-transition');
+            const stars = document.querySelector('.stars');
+            const symbols = document.querySelector('.symbols');
+            const content = document.querySelector('.content');
+            
+            // Плавно скрываем все элементы
+            stars.style.opacity = '0';
+            symbols.style.opacity = '0';
+            content.style.opacity = '0';
+            transition.style.opacity = '1';
+            transition.style.pointerEvents = 'all';
+            
+            setTimeout(() => {
+                window.location.href = href;
+            }, 500);
+        }
+
+        // Показываем страницу после загрузки
+        window.addEventListener('load', () => {
+            document.body.style.opacity = '1';
+        });
+
+        // Обработчики для кнопок
+        document.querySelector('.back-button').addEventListener('click', (e) => {
+            e.preventDefault();
+            transitionToPage('index.html');
+        });
+
+        document.querySelector('.last_journey').addEventListener('click', (e) => {
+            e.preventDefault();
+            transitionToPage('dashboard.html');
         });
     </script>
 </body>

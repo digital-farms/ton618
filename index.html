@@ -211,14 +211,11 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: black;
-            z-index: 1000;
-            transform: translateY(100%);
-            transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .page-transition.active {
-            transform: translateY(0%);
+            background: #000;
+            z-index: 9999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
         }
 
         .timer {
@@ -399,6 +396,7 @@
     </style>
 </head>
 <body>
+    <div class="page-transition"></div>
     <div id="loading-screen">
         <div class="loader"></div>
     </div>
@@ -416,18 +414,6 @@
         <button class="community-button">Community</button>
     </div>
     <button class="waitlist-button">Join Waitlist</button>
-
-    <div class="page-transition"></div>
-    <div class="audio-control-container">
-        <button class="audio-control ready-to-play" id="audioControl" title="Click to play music">
-            <svg viewBox="0 0 24 24" id="audioIcon">
-                <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
-            </svg>
-            <div class="volume-slider-container">
-                <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="30">
-            </div>
-        </button>
-    </div>
 
     <script id="planetVertex" type="x-shader/x-vertex">
         varying vec2 vUv;
@@ -633,22 +619,32 @@
         material.uniforms.resolution.value.set(initialSize, initialSize);
 
         // Навигация между страницами
-        document.querySelector('.community-button').addEventListener('click', () => {
+        function transitionToPage(href) {
             const transition = document.querySelector('.page-transition');
-            transition.classList.add('active');
-
+            const stars = document.querySelector('.stars');
+            const symbols = document.querySelector('.symbols');
+            const content = document.querySelector('.content');
+            
+            // Плавно скрываем все элементы
+            stars.style.opacity = '0';
+            symbols.style.opacity = '0';
+            content.style.opacity = '0';
+            transition.style.opacity = '1';
+            transition.style.pointerEvents = 'all';
+            
             setTimeout(() => {
-                window.location.href = 'waitlist.html';
-            }, 700);
+                window.location.href = href;
+            }, 500);
+        }
+
+        document.querySelector('.community-button').addEventListener('click', (e) => {
+            e.preventDefault();
+            transitionToPage('waitlist.html');
         });
 
-        document.querySelector('.waitlist-button').addEventListener('click', () => {
-            const transition = document.querySelector('.page-transition');
-            transition.classList.add('active');
-
-            setTimeout(() => {
-                window.location.href = 'waitlist.html';
-            }, 700);
+        document.querySelector('.waitlist-button').addEventListener('click', (e) => {
+            e.preventDefault();
+            transitionToPage('waitlist.html');
         });
 
         // Анимация при загрузке страницы
