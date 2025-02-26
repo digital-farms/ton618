@@ -624,14 +624,14 @@
             const stars = document.querySelector('.stars');
             const symbols = document.querySelector('.symbols');
             const content = document.querySelector('.content');
-            
+
             // Плавно скрываем все элементы
             stars.style.opacity = '0';
             symbols.style.opacity = '0';
             content.style.opacity = '0';
             transition.style.opacity = '1';
             transition.style.pointerEvents = 'all';
-            
+
             setTimeout(() => {
                 window.location.href = href;
             }, 500);
@@ -653,17 +653,17 @@
             const content = document.querySelector('.content');
             const stars = document.querySelector('.stars');
             const symbols = document.querySelector('.symbols');
-            
+
             // Создаем звезды и символы
             createStars();
             createSymbols();
-            
+
             setTimeout(() => {
                 // Показываем контент
                 content.style.opacity = '1';
                 stars.style.opacity = '1';
                 symbols.style.opacity = '1';
-                
+
                 // Скрываем экран загрузки
                 loadingScreen.style.opacity = '0';
                 setTimeout(() => {
