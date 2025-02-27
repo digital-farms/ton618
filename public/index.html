@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TON 618</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #000000;
+            color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .stars, .symbols {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            perspective: 500px;
+            transform-style: preserve-3d;
+            opacity: 0;
+            transition: opacity 1s ease-in;
+        }
+
+        .star {
+            position: absolute;
+            background: #ffffff;
+            border-radius: 50%;
+            opacity: 0;
+            z-index: 0;
+            animation: starMove var(--duration) linear infinite;
+            animation-delay: var(--delay);
+        }
+
+        .symbol {
+            position: absolute;
+            color: #ffffff;
+            font-family: monospace;
+            opacity: 0;
+            z-index: 0;
+            animation: symbolMove var(--duration) linear infinite;
+            animation-delay: var(--delay);
+            transform-origin: center;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.7);
+        }
+
+        @keyframes symbolMove {
+            0% {
+                transform: translate(-50%, -50%) translateZ(-400px) scale(0.1) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: var(--intensity);
+            }
+            90% {
+                opacity: var(--intensity);
+            }
+            100% {
+                transform: translate(-50%, -50%) translateZ(200px) scale(2) rotate(45deg);
+                opacity: 0;
+            }
+        }
+
+        @keyframes starMove {
+            0% {
+                transform: translate(-50%, -50%) translateZ(-400px) scale(0.1);
+                opacity: 0;
+            }
+            10% {
+                opacity: var(--intensity);
+            }
+            90% {
+                opacity: var(--intensity);
+            }
+            100% {
+                transform: translate(-50%, -50%) translateZ(200px) scale(2);
+                opacity: 0;
+            }
+        }
+
+        .content {
+            position: relative;
+            z-index: 2;
+            padding-top: 150px;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 1s ease-in;
+        }
+
+        .title {
+            font-size: 45px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            color: white;
+            font-family: 'Orbitron', sans-serif;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            margin-bottom: 0px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0;
+        }
+
+        .title-logo {
+            height: 45px;
+            width: auto;
+            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.5));
+            margin-left: -4px;
+            vertical-align: middle;
+            display: inline-block;
+        }
+
+        .last_journey {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 16px;
+            padding: 0px 0px 35px 0px;
+            color: white;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            letter-spacing: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0px;
+        }
+
+        .community-button {
+            background-color: transparent;
+            color: #ffffff;
+            border: 2px solid #ffffff;
+            padding: 12px 30px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 5px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .community-button:hover {
+            background-color: #ffffff;
+            color: #000000;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+        }
+
+        .community-button:active {
+            transform: scale(0.98);
+        }
+
+        .waitlist-button {
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.6);
+            padding: 12px 30px;
+            font-size: 16px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            animation: pulseText 3s ease-in-out infinite;
+            z-index: 2;
+        }
+
+        @keyframes pulseText {
+            0%, 100% { color: rgba(255, 255, 255, 0.6); }
+            50% { color: rgba(255, 255, 255, 0.9); }
+        }
+
+        .waitlist-button:active {
+            transform: translateX(-50%) scale(0.98);
+        }
+
+        #planet-canvas {
+            position: absolute;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 800px;
+            height: 800px;
+            z-index: 1;
+        }
+
+        @media (max-width: 768px) {
+            #planet-canvas {
+                width: 100vw;
+                height: 100vw;
+                max-width: 800px;
+                max-height: 800px;
+                bottom: 80px;
+            }
+        }
+
+        .page-transition {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 9999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+
+        .timer {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 16px;
+            color: white;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            letter-spacing: 2px;
+            position: fixed;
+            top: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .timer span {
+            display: inline-block;
+            min-width: 25px;
+            text-align: center;
+        }
+
+        .audio-control-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .audio-control {
+            width: 40px;
+            height: 40px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            opacity: 0.5;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: visible;
+        }
+
+        .audio-control:hover {
+            opacity: 0.8;
+            transform: scale(1.05);
+        }
+
+        .audio-control svg {
+            width: 100%;
+            height: 100%;
+            fill: #ffffff;
+            filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.3));
+        }
+
+        .audio-control.ready-to-play {
+            animation: attention-pulse 2s infinite;
+        }
+
+        @keyframes attention-pulse {
+            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.3)); }
+            50% { transform: scale(1.1); filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.7)); }
+        }
+
+        .volume-slider-container {
+            position: absolute;
+            right: 50px;
+            top: 50%;
+            transform: translateY(-50%) scaleX(0);
+            transform-origin: right;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+            padding: 10px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            width: 100px;
+        }
+
+        .audio-control:hover .volume-slider-container,
+        .volume-slider-container:hover {
+            transform: translateY(-50%) scaleX(1);
+        }
+
+        .volume-slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.2);
+            outline: none;
+            border-radius: 2px;
+        }
+
+        .volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 12px;
+            height: 12px;
+            background: #ffffff;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+
+        .volume-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.7);
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.3)); }
+            50% { filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.5)); }
+        }
+
+        .audio-control.playing svg {
+            animation: pulseGlow 2s infinite;
+        }
+
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 1s ease-out;
+        }
+
+        .loader {
+            width: 100px;
+            height: 100px;
+            border: 2px solid transparent;
+            border-top-color: #333;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            position: relative;
+        }
+
+        .loader:before {
+            content: '';
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            right: 5px;
+            bottom: 5px;
+            border: 2px solid transparent;
+            border-top-color: #666;
+            border-radius: 50%;
+            animation: spin 2s linear infinite;
+        }
+
+        .loader:after {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            right: 15px;
+            bottom: 15px;
+            border: 2px solid transparent;
+            border-top-color: #999;
+            border-radius: 50%;
+            animation: spin 1.5s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-transition"></div>
+    <div id="loading-screen">
+        <div class="loader"></div>
+    </div>
+    <audio id="bgAudio" loop crossorigin="anonymous">
+        <source src="audio/sumno1.mp3" type="audio/mpeg">
+    </audio>
+    <canvas id="planet-canvas"></canvas>
+    <div class="stars"></div>
+    <div class="symbols"></div>
+    <div id="timer" class="timer">00:00:00</div>
+    <div class="content">
+        <div class="title">T<img src="src/pics/ton618_logo.svg" alt="O" class="title-logo">N 618</div>
+        <div class="last_journey">The Last Journey</div>
+        <div id="error-message" class="error-message" style="display: none;"></div>
+        <button class="community-button">Community</button>
+    </div>
+    <button class="waitlist-button">Join Waitlist</button>
+
+    <script id="planetVertex" type="x-shader/x-vertex">
+        varying vec2 vUv;
+        varying vec3 vNormal;
+
+        void main() {
+            vUv = uv;
+            vNormal = normalize(normalMatrix * normal);
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+    </script>
+
+    <script id="planetFragment" type="x-shader/x-fragment">
+        varying vec2 vUv;
+        varying vec3 vNormal;
+        uniform float time;
+        uniform vec2 resolution;
+        uniform vec2 mousePosition;
+        uniform float pulseIntensity;
+
+        vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+        vec2 mod289(vec2 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+        vec3 permute(vec3 x) { return mod289(((x*34.0)+1.0)*x); }
+
+        float snoise(vec2 v) {
+            const vec4 C = vec4(0.211324865405187,
+                              0.366025403784439,
+                             -0.577350269189626,
+                              0.024390243902439);
+            vec2 i  = floor(v + dot(v, C.yy));
+            vec2 x0 = v -   i + dot(i, C.xx);
+            vec2 i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
+            vec4 x12 = x0.xyxy + C.xxzz;
+            x12.xy -= i1;
+            i = mod289(i);
+            vec3 p = permute(permute(i.y + vec3(0.0, i1.y, 1.0)) + i.x + vec3(0.0, i1.x, 1.0));
+            vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), 0.0);
+            m = m*m;
+            m = m*m;
+            vec3 x = 2.0 * fract(p * C.www) - 1.0;
+            vec3 h = abs(x) - 0.5;
+            vec3 ox = floor(x + 0.5);
+            vec3 a0 = x - ox;
+            m *= 1.79284291400159 - 0.85373472095314 * (a0*a0 + h*h);
+            vec3 g;
+            g.x  = a0.x  * x0.x  + h.x  * x0.y;
+            g.yz = a0.yz * x12.xz + h.yz * x12.yw;
+            return 130.0 * dot(m, g);
+        }
+
+        vec2 rotate(vec2 v, float a) {
+            float s = sin(a);
+            float c = cos(a);
+            mat2 m = mat2(c, -s, s, c);
+            return m * v;
+        }
+
+        void main() {
+            vec2 coord = vUv;
+            vec3 color = vec3(0.0);
+            float alpha = 0.0;
+
+            // Интерактивное искажение на основе позиции мыши
+            vec2 mouseOffset = (mousePosition - coord) * 0.1;
+            coord += mouseOffset * sin(time * 2.0) * 0.02;
+
+            float dist = distance(coord, vec2(0.5));
+            float circle = smoothstep(0.5, 0.48, dist);
+
+            // Многослойный шум с разными скоростями и направлениями
+            float baseNoise = snoise(rotate(coord * 4.0, time * 0.1));
+            float detailNoise = snoise(rotate(coord * 8.0, -time * 0.15));
+            float microDetail = snoise(coord * 16.0 + vec2(time * 0.2));
+
+            // Добавляем волновой эффект
+            float wave = sin(dist * 40.0 - time * 2.0) * 0.5 + 0.5;
+            wave *= smoothstep(0.5, 0.3, dist);
+
+            // Комбинируем шумы с разными весами
+            float combinedNoise = baseNoise * 0.5 + detailNoise * 0.3 + microDetail * 0.2;
+            combinedNoise = combinedNoise * 0.7 + wave * 0.3;
+
+            // Создаем динамические цветовые полосы
+            float bands = sin(coord.y * 20.0 + combinedNoise * 2.0 + time * 0.5) * 0.5 + 0.5;
+
+            // Улучшенная атмосфера с пульсацией
+            float atmosphere = smoothstep(0.5, 0.35, dist) - circle;
+            atmosphere *= 1.0 + sin(time * 3.0) * 0.2;
+            vec3 atmosphereColor = mix(
+                vec3(0.4, 0.6, 1.0),
+                vec3(0.6, 0.8, 1.0),
+                sin(time) * 0.5 + 0.5
+            ) * atmosphere * pulseIntensity;
+
+            // Базовый цвет планеты с временной анимацией
+            vec3 planetColor = mix(
+                vec3(0.2, 0.3, 0.8),
+                vec3(0.4, 0.6, 1.0),
+                bands + combinedNoise
+            );
+
+            // Добавляем вихревые эффекты
+            float vortex = snoise(rotate(coord * 5.0, time * 0.5)) * 0.5 + 0.5;
+            planetColor = mix(planetColor, vec3(0.7, 0.8, 1.0), vortex * 0.3);
+
+            // Добавляем variation based on position и время
+            planetColor *= 0.8 + 0.2 * sin(coord.x * 10.0 + time);
+
+            // Комбинируем все эффекты
+            color = (planetColor * circle + atmosphereColor) * (0.8 + 0.2 * sin(time * 0.5));
+            alpha = circle + atmosphere;
+
+            // Добавляем пульсирующее свечение
+            float glow = 0.15 * (1.0 + sin(time * 2.0));
+            color += vec3(0.3, 0.4, 1.0) * glow * (1.0 - dist * 2.0) * pulseIntensity;
+
+            gl_FragColor = vec4(color, alpha);
+        }
+    </script>
+
+    <script>
+        const canvas = document.getElementById('planet-canvas');
+        const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+        renderer.setSize(800, 800);
+        renderer.setPixelRatio(window.devicePixelRatio);
+
+        const scene = new THREE.Scene();
+        const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 10);
+        camera.position.z = 1;
+
+        let mouseX = 0.5;
+        let mouseY = 0.5;
+        let targetPulseIntensity = 1.0;
+        let currentPulseIntensity = 1.0;
+
+        const material = new THREE.ShaderMaterial({
+            uniforms: {
+                time: { value: 0 },
+                resolution: { value: new THREE.Vector2(800, 800) },
+                mousePosition: { value: new THREE.Vector2(0.5, 0.5) },
+                pulseIntensity: { value: 1.0 }
+            },
+            vertexShader: document.getElementById('planetVertex').textContent,
+            fragmentShader: document.getElementById('planetFragment').textContent,
+            transparent: true
+        });
+
+        const geometry = new THREE.CircleGeometry(1, 64);
+        const mesh = new THREE.Mesh(geometry, material);
+        scene.add(mesh);
+
+        // Обработчик движения мыши
+        canvas.addEventListener('mousemove', (event) => {
+            const rect = canvas.getBoundingClientRect();
+            mouseX = (event.clientX - rect.left) / rect.width;
+            mouseY = 1.0 - (event.clientY - rect.top) / rect.height;
+        });
+
+        // Обработчик наведения мыши
+        canvas.addEventListener('mouseenter', () => {
+            targetPulseIntensity = 1.5;
+        });
+
+        canvas.addEventListener('mouseleave', () => {
+            targetPulseIntensity = 1.0;
+            mouseX = 0.5;
+            mouseY = 0.5;
+        });
+
+        function animate(time) {
+            // Плавное изменение интенсивности пульсации
+            currentPulseIntensity += (targetPulseIntensity - currentPulseIntensity) * 0.05;
+
+            const t = time * 0.001;
+            material.uniforms.time.value = t;
+            material.uniforms.mousePosition.value.set(mouseX, mouseY);
+            material.uniforms.pulseIntensity.value = currentPulseIntensity;
+
+            renderer.render(scene, camera);
+            requestAnimationFrame(animate);
+        }
+        requestAnimationFrame(animate);
+
+        // Обработчик изменения размера окна
+        window.addEventListener('resize', () => {
+            const isMobile = window.innerWidth <= 768;
+            let size;
+
+            if (isMobile) {
+                size = Math.min(window.innerWidth, window.innerWidth);
+            } else {
+                size = 800;
+            }
+
+            renderer.setSize(size, size);
+            material.uniforms.resolution.value.set(size, size);
+        });
+
+        // Инициализация размера
+        const isMobile = window.innerWidth <= 768;
+        const initialSize = isMobile ? Math.min(window.innerWidth, window.innerWidth) : 800;
+        renderer.setSize(initialSize, initialSize);
+        material.uniforms.resolution.value.set(initialSize, initialSize);
+
+        // Навигация между страницами
+        function transitionToPage(href) {
+            const transition = document.querySelector('.page-transition');
+            const stars = document.querySelector('.stars');
+            const symbols = document.querySelector('.symbols');
+            const content = document.querySelector('.content');
+
+            // Плавно скрываем все элементы
+            stars.style.opacity = '0';
+            symbols.style.opacity = '0';
+            content.style.opacity = '0';
+            transition.style.opacity = '1';
+            transition.style.pointerEvents = 'all';
+
+            setTimeout(() => {
+                window.location.href = href;
+            }, 500);
+        }
+
+        document.querySelector('.community-button').addEventListener('click', (e) => {
+            e.preventDefault();
+            transitionToPage('waitlist.html');
+        });
+
+        document.querySelector('.waitlist-button').addEventListener('click', (e) => {
+            e.preventDefault();
+            transitionToPage('waitlist.html');
+        });
+
+        // Анимация при загрузке страницы
+        window.addEventListener('load', () => {
+            const loadingScreen = document.getElementById('loading-screen');
+            const content = document.querySelector('.content');
+            const stars = document.querySelector('.stars');
+            const symbols = document.querySelector('.symbols');
+
+            // Создаем звезды и символы
+            createStars();
+            createSymbols();
+
+            setTimeout(() => {
+                // Показываем контент
+                content.style.opacity = '1';
+                stars.style.opacity = '1';
+                symbols.style.opacity = '1';
+
+                // Скрываем экран загрузки
+                loadingScreen.style.opacity = '0';
+                setTimeout(() => {
+                    loadingScreen.style.display = 'none';
+                }, 1000);
+            }, 1500);
+        });
+
+        // Генерация звезд
+        function createStars() {
+            const starsContainer = document.querySelector('.stars');
+            const numberOfStars = 100;
+
+            for (let i = 0; i < numberOfStars; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+
+                // Генерируем позицию, исключая центр
+                let x, y;
+                do {
+                    x = Math.random() * 100;
+                    y = Math.random() * 100;
+                } while (
+                    // Увеличенная центральная область (40% от центра экрана)
+                    (x > 30 && x < 70) &&
+                    (y > 30 && y < 70)
+                );
+
+                // Случайный размер (маленькие точки)
+                const size = Math.random() * 2 + 1;
+
+                // Случайная длительность движения (в два раза медленнее)
+                const duration = Math.random() * 4 + 2;
+
+                // Случайная задержка начала анимации
+                const delay = Math.random() * 4;
+
+                // Случайная интенсивность свечения
+                const intensity = Math.random() * 0.7 + 0.3;
+
+                star.style.cssText = `
+                    left: ${x}%;
+                    top: ${y}%;
+                    width: ${size}px;
+                    height: ${size}px;
+                    --duration: ${duration}s;
+                    --delay: -${delay}s;
+                    --intensity: ${intensity};
+                `;
+
+                starsContainer.appendChild(star);
+            }
+        }
+
+        // Генерация символов
+        function createSymbols() {
+            const symbolsContainer = document.querySelector('.symbols');
+            const numberOfSymbols = 8; // Очень мало символов
+            const symbols = ['T', 'O', 'N', '6', '1', '8', '+', '-', '=', '/', '>', '<', '^'];
+
+            for (let i = 0; i < numberOfSymbols; i++) {
+                const symbol = document.createElement('div');
+                symbol.className = 'symbol';
+
+                let x, y;
+                do {
+                    x = Math.random() * 100;
+                    y = Math.random() * 100;
+                } while (
+                    (x > 30 && x < 70) &&
+                    (y > 30 && y < 70)
+                );
+
+                const size = (Math.random() * 12 + 6) * 0.8; // Базовый размер 6-18px, уменьшенный на 20%
+                const duration = Math.random() * 8 + 6; // Медленная анимация 6-14 секунд
+                const delay = Math.random() * 8; // Случайная задержка до 8 секунд
+                const intensity = Math.random() * 0.5 + 0.3; // Меньшая яркость
+
+                symbol.style.cssText = `
+                    left: ${x}%;
+                    top: ${y}%;
+                    font-size: ${size}px;
+                    --duration: ${duration}s;
+                    --delay: -${delay}s;
+                    --intensity: ${intensity};
+                `;
+
+                // С вероятностью 40% выбираем TON или 618, иначе другие символы
+                if (Math.random() < 0.4) {
+                    const tonSymbols = ['T', 'O', 'N', '6', '1', '8'];
+                    symbol.textContent = tonSymbols[Math.floor(Math.random() * tonSymbols.length)];
+                } else {
+                    const otherSymbols = ['+', '-', '=', '/', '>', '<', '^'];
+                    symbol.textContent = otherSymbols[Math.floor(Math.random() * otherSymbols.length)];
+                }
+
+                symbolsContainer.appendChild(symbol);
+            }
+        }
+
+        // Автоматический таймер
+        function updateTimer() {
+            const timerElement = document.getElementById('timer');
+            const now = new Date();
+
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            const seconds = now.getSeconds().toString().padStart(2, '0');
+
+            timerElement.innerHTML = `
+                <span>${hours}</span>
+                <span>:</span>
+                <span>${minutes}</span>
+                <span>:</span>
+                <span>${seconds}</span>
+            `;
+        }
+
+        // Запускаем таймер сразу и обновляем каждую секунду
+        updateTimer();
+        setInterval(updateTimer, 1000);
+    </script>
+
+    <script>
+        // Аудио функционал
+        const audio = document.getElementById('bgAudio');
+        const audioControl = document.getElementById('audioControl');
+        const audioIcon = document.getElementById('audioIcon');
+        const volumeSlider = document.getElementById('volumeSlider');
+        let isPlaying = false;
+
+        // Иконки для состояний звука
+        const soundOnPath = "M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z";
+        const soundOffPath = "M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z";
+
+        // Инициализация аудио с громкостью 30% от стандартной (0.316 * 0.3 ≈ 0.095)
+        audio.volume = 0.095;
+        volumeSlider.value = Math.round(audio.volume * 100);
+
+        // Проверяем возможность автовоспроизведения
+        audio.play().then(() => {
+            isPlaying = true;
+            audioControl.classList.remove('ready-to-play');
+            audioControl.classList.add('playing');
+            audioControl.title = "Click to pause music";
+        }).catch(() => {
+            // Если автовоспроизведение заблокировано, оставляем анимацию привлечения внимания
+            audioControl.title = "Click to play music";
+        });
+
+        // Обработчик клика по кнопке
+        audioControl.addEventListener('click', (e) => {
+            // Игнорируем клик, если он был на слайдере
+            if (e.target === volumeSlider) return;
+
+            if (isPlaying) {
+                audio.pause();
+                audioIcon.querySelector('path').setAttribute('d', soundOffPath);
+                audioControl.classList.remove('playing');
+                audioControl.title = "Click to play music";
+            } else {
+                audio.play();
+                audioIcon.querySelector('path').setAttribute('d', soundOnPath);
+                audioControl.classList.remove('ready-to-play');
+                audioControl.classList.add('playing');
+                audioControl.title = "Click to pause music";
+            }
+            isPlaying = !isPlaying;
+        });
+
+        // Обработчик изменения громкости
+        volumeSlider.addEventListener('input', (e) => {
+            const volume = e.target.value / 100;
+            audio.volume = volume;
+
+            // Обновляем иконку в зависимости от громкости
+            if (volume === 0) {
+                audioIcon.querySelector('path').setAttribute('d', soundOffPath);
+            } else if (isPlaying) {
+                audioIcon.querySelector('path').setAttribute('d', soundOnPath);
+            }
+        });
+    </script>
+</body>
+</html>
