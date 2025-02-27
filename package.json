@@ -6,7 +6,9 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js",
-    "prod": "NODE_ENV=production node server.js"
+    "prod": "NODE_ENV=production node server.js",
+    "build": "next build",
+    "vercel-build": "next build"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.48.1",
@@ -14,6 +16,9 @@
     "dotenv": "^16.4.7",
     "express": "^4.18.2",
     "express-rate-limit": "^6.9.0",
-    "helmet": "^7.0.0"
+    "helmet": "^7.0.0",
+    "next": "^14.0.4",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   }
 }
