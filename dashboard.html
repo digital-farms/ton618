@@ -7,6 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/src/css/chat.css">
     <style>
         body {
             margin: 0;
@@ -129,68 +130,6 @@
                 opacity: 0.3;
             }
         }
-
-        .container {
-            display: flex;
-            flex-direction: column;
-            gap: 7px;
-            position: fixed;
-            color: white;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 10;
-        }
-
-        .container .label {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 16px;
-            color: white;
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-            padding-left: 10px;
-            position: absolute;
-            top: 13px;
-            transition: 0.3s;
-            pointer-events: none;
-        }
-
-        .input {
-            width: 200px;
-            height: 45px;
-            border: none;
-            outline: none;
-            padding: 0px 7px;
-            border-radius: 6px;
-            color: #fff;
-            font-size: 15px;
-            background-color: transparent;
-            box-shadow: 3px 3px 10px rgba(0,0,0,1),
-            -1px -1px 6px rgba(255, 255, 255, 0.4);
-        }
-
-        .input:focus {
-            border: 2px solid transparent;
-            color: #fff;
-            box-shadow: 3px 3px 10px rgba(0,0,0,1),
-            -1px -1px 6px rgba(255, 255, 255, 0.4),
-            inset 3px 3px 10px rgba(0,0,0,1),
-            inset -1px -1px 6px rgba(255, 255, 255, 0.4);
-        }
-
-        .container .input:valid ~ .label,
-        .container .input:focus ~ .label {
-            transition: 0.3s;
-            padding-left: 2px;
-            transform: translateY(-35px);
-        }
-
-        .container .input:valid,
-        .container .input:focus {
-            box-shadow: 3px 3px 10px rgba(0,0,0,1),
-            -1px -1px 6px rgba(255, 255, 255, 0.4),
-            inset 3px 3px 10px rgba(0,0,0,1),
-            inset -1px -1px 6px rgba(255, 255, 255, 0.4);
-        }
     </style>
 </head>
 <body>
@@ -199,29 +138,39 @@
     </div>
     <div id="nebula"></div>
 
-    <!-- From Uiverse.io by AmIt-DasIT -->
-    <div class="container">
-        <input required="" type="text" name="text" class="input">
-        <label class="label">Response</label>
-    </div>
-
-    <script>
-        // Показываем body после загрузки
+    <script type="module">
+        import initChat from '/src/js/chat/initChat.js';
+        
+        // Инициализация после загрузки страницы
         window.addEventListener('load', () => {
-            document.body.style.opacity = '1';
+            const loadingScreen = document.getElementById('loading-screen');
+            const nebula = document.getElementById('nebula');
+            
+            // Инициализация нейронебулы
+            const neuroNebula = new NeuroNebula();
+            
+            // Отображение страницы
+            setTimeout(() => {
+                document.body.style.opacity = '1';
+                nebula.style.opacity = '1';
+                loadingScreen.style.opacity = '0';
+                setTimeout(() => {
+                    loadingScreen.style.display = 'none';
+                }, 1000);
+                
+                // Инициализация чата
+                initChat();
+            }, 1000);
         });
-
+    </script>
+    
+    <script>
         class NeuroNebula {
             constructor() {
                 this.container = document.getElementById('nebula');
                 this.particles = [];
                 this.init();
                 this.createSmoke(10);
-            }
-
-            init() {
-                this.generateParticles(200);
-                this.animate();
             }
 
             createSmoke(count) {
@@ -241,8 +190,46 @@
                 }
             }
 
+            init() {
+                this.generateParticles(200);
+                this.animate();
+            }
+
             generateParticles(count) {
-                for(let i = 0; i < count; i++) {
+                // Создаем специальные цветные частицы
+                const specialColors = ['#5b85fb', '#e37900'];
+                const specialParticlesCount = 10; // 4 специальные частицы (по 2 каждого цвета)
+
+                // Создаем специальные цветные частицы
+                for(let i = 0; i < specialParticlesCount; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+
+                    const size = Math.random() * 20 + 5; // Немного крупнее обычных
+                    const color = specialColors[i % specialColors.length]; // Чередуем цвета
+
+                    Object.assign(particle.style, {
+                        width: `${size}px`,
+                        height: `${size}px`,
+                        left: `${Math.random() * 100}%`,
+                        top: `${Math.random() * 100}%`,
+                        animationDuration: `${Math.random() * 4 + 6}s`,
+                        background: `radial-gradient(circle at 30% 30%, ${color}, transparent)`,
+                        boxShadow: `0 0 15px ${color}, 0 0 25px ${color}`
+                    });
+
+                    this.container.appendChild(particle);
+                    this.particles.push({
+                        element: particle,
+                        x: Math.random() * innerWidth,
+                        y: Math.random() * innerHeight,
+                        vx: (Math.random() - 0.5) * 2,
+                        vy: (Math.random() - 0.5) * 2
+                    });
+                }
+
+                // Создаем обычные белые частицы
+                for(let i = 0; i < count - specialParticlesCount; i++) {
                     const particle = document.createElement('div');
                     particle.className = 'particle';
 
@@ -284,26 +271,6 @@
                 requestAnimationFrame(() => this.animate());
             }
         }
-
-        // Инициализация после загрузки страницы
-        window.addEventListener('load', () => {
-            const loadingScreen = document.getElementById('loading-screen');
-            const nebula = document.getElementById('nebula');
-
-            // Создаем эффекты
-            new NeuroNebula();
-
-            // Показываем контент
-            nebula.style.opacity = '1';
-
-            // Скрываем экран загрузки
-            setTimeout(() => {
-                loadingScreen.style.opacity = '0';
-                setTimeout(() => {
-                    loadingScreen.style.display = 'none';
-                }, 1000);
-            }, 1500);
-        });
     </script>
 </body>
 </html>
