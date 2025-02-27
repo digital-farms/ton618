@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Личный кабинет</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/src/css/chat.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #000000;
+            overflow: hidden;
+            position: relative;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 1s ease-out;
+        }
+
+        .loader {
+            width: 100px;
+            height: 100px;
+            border: 2px solid transparent;
+            border-top-color: #333;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            position: relative;
+        }
+
+        .loader:before {
+            content: '';
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            right: 5px;
+            bottom: 5px;
+            border: 2px solid transparent;
+            border-top-color: #666;
+            border-radius: 50%;
+            animation: spin 2s linear infinite;
+        }
+
+        .loader:after {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            right: 15px;
+            bottom: 15px;
+            border: 2px solid transparent;
+            border-top-color: #999;
+            border-radius: 50%;
+            animation: spin 1.5s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        #nebula {
+            width: 100vw;
+            height: 100vh;
+            position: fixed;
+            z-index: 1;
+            opacity: 0;
+            transition: opacity 1s ease-in;
+        }
+
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            mix-blend-mode: screen;
+            transition: all 0.3s ease-out;
+            background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.8), transparent);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5), 0 0 20px rgba(255, 255, 255, 0.3);
+            animation: twinkle 8s infinite alternate;
+        }
+
+        @keyframes twinkle {
+            0% { opacity: 0.1; }
+            100% { opacity: 0.9; }
+        }
+
+        .smoke {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle,
+                rgba(40, 40, 40, 0.6) 0%,
+                rgba(30, 30, 30, 0.4) 40%,
+                rgba(20, 20, 20, 0.2) 60%,
+                transparent 90%);
+            filter: blur(20px);
+            animation: float 15s infinite ease-in-out;
+            mix-blend-mode: multiply;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translate(0, 0) scale(1);
+                opacity: 0.3;
+            }
+            25% {
+                transform: translate(50px, -30px) scale(1.2);
+                opacity: 0.5;
+            }
+            50% {
+                transform: translate(-30px, 50px) scale(0.8);
+                opacity: 0.4;
+            }
+            75% {
+                transform: translate(20px, 20px) scale(1.1);
+                opacity: 0.3;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="loading-screen">
+        <div class="loader"></div>
+    </div>
+    <div id="nebula"></div>
+
+    <script type="module">
+        import initChat from '/src/js/chat/initChat.js';
+        
+        // Инициализация после загрузки страницы
+        window.addEventListener('load', () => {
+            const loadingScreen = document.getElementById('loading-screen');
+            const nebula = document.getElementById('nebula');
+            
+            // Инициализация нейронебулы
+            const neuroNebula = new NeuroNebula();
+            
+            // Отображение страницы
+            setTimeout(() => {
+                document.body.style.opacity = '1';
+                nebula.style.opacity = '1';
+                loadingScreen.style.opacity = '0';
+                setTimeout(() => {
+                    loadingScreen.style.display = 'none';
+                }, 1000);
+                
+                // Инициализация чата
+                initChat();
+            }, 1000);
+        });
+    </script>
+    
+    <script>
+        class NeuroNebula {
+            constructor() {
+                this.container = document.getElementById('nebula');
+                this.particles = [];
+                this.init();
+                this.createSmoke(10);
+            }
+
+            createSmoke(count) {
+                for(let i = 0; i < count; i++) {
+                    const smoke = document.createElement('div');
+                    smoke.className = 'smoke';
+
+                    Object.assign(smoke.style, {
+                        left: `${Math.random() * 100}%`,
+                        top: `${Math.random() * 100}%`,
+                        animationDelay: `${Math.random() * -15}s`,
+                        transform: `rotate(${Math.random() * 360}deg)`,
+                        opacity: `${Math.random() * 0.3 + 0.2}`
+                    });
+
+                    this.container.appendChild(smoke);
+                }
+            }
+
+            init() {
+                this.generateParticles(200);
+                this.animate();
+            }
+
+            generateParticles(count) {
+                // Создаем специальные цветные частицы
+                const specialColors = ['#5b85fb', '#e37900'];
+                const specialParticlesCount = 10; // 4 специальные частицы (по 2 каждого цвета)
+
+                // Создаем специальные цветные частицы
+                for(let i = 0; i < specialParticlesCount; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+
+                    const size = Math.random() * 20 + 5; // Немного крупнее обычных
+                    const color = specialColors[i % specialColors.length]; // Чередуем цвета
+
+                    Object.assign(particle.style, {
+                        width: `${size}px`,
+                        height: `${size}px`,
+                        left: `${Math.random() * 100}%`,
+                        top: `${Math.random() * 100}%`,
+                        animationDuration: `${Math.random() * 4 + 6}s`,
+                        background: `radial-gradient(circle at 30% 30%, ${color}, transparent)`,
+                        boxShadow: `0 0 15px ${color}, 0 0 25px ${color}`
+                    });
+
+                    this.container.appendChild(particle);
+                    this.particles.push({
+                        element: particle,
+                        x: Math.random() * innerWidth,
+                        y: Math.random() * innerHeight,
+                        vx: (Math.random() - 0.5) * 2,
+                        vy: (Math.random() - 0.5) * 2
+                    });
+                }
+
+                // Создаем обычные белые частицы
+                for(let i = 0; i < count - specialParticlesCount; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+
+                    const size = Math.random() * 15 + 5;
+
+                    Object.assign(particle.style, {
+                        width: `${size}px`,
+                        height: `${size}px`,
+                        left: `${Math.random() * 100}%`,
+                        top: `${Math.random() * 100}%`,
+                        animationDuration: `${Math.random() * 4 + 6}s`
+                    });
+
+                    this.container.appendChild(particle);
+                    this.particles.push({
+                        element: particle,
+                        x: Math.random() * innerWidth,
+                        y: Math.random() * innerHeight,
+                        vx: (Math.random() - 0.5) * 2,
+                        vy: (Math.random() - 0.5) * 2
+                    });
+                }
+            }
+
+            animate() {
+                this.particles.forEach(particle => {
+                    particle.x += particle.vx;
+                    particle.y += particle.vy;
+
+                    if(particle.x < 0 || particle.x > innerWidth) particle.vx *= -1;
+                    if(particle.y < 0 || particle.y > innerHeight) particle.vy *= -1;
+
+                    particle.element.style.transform = `translate(
+                        ${particle.x}px,
+                        ${particle.y}px
+                    )`;
+                });
+
+                requestAnimationFrame(() => this.animate());
+            }
+        }
+    </script>
+</body>
+</html>
