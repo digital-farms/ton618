@@ -20,6 +20,10 @@
       "dest": "/$1"
     },
     {
+      "src": "/(dashboard|waitlist|index)\\.html",
+      "dest": "/$1.html"
+    },
+    {
       "src": "/(.*)",
       "dest": "server.js"
     }

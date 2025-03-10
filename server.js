@@ -31,7 +31,7 @@ app.use(express.json()); // Для парсинга JSON в теле запро�
 // Настройка CORS
 const corsOptions = {
     origin: process.env.NODE_ENV === 'production'
-        ? ['https://ton618-stable-ai.vercel.app', 'https://ton618.app']
+        ? ['https://ton618-stable-ai.vercel.app', 'https://ton618.app', 'https://ton618.vercel.app']
         : 'http://localhost:3000',
     methods: ['GET', 'POST'], // Добавили POST для работы с waitlist
     optionsSuccessStatus: 200
