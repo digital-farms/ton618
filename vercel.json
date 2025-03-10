@@ -4,12 +4,20 @@
     {
       "src": "server.js",
       "use": "@vercel/node"
+    },
+    {
+      "src": "src/**",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "*.html",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "server.js"
+      "dest": "/server.js"
     },
     {
       "src": "/src/(.*)",
@@ -20,12 +28,20 @@
       "dest": "/$1"
     },
     {
-      "src": "/(dashboard|waitlist|index)\\.html",
-      "dest": "/$1.html"
+      "src": "/dashboard",
+      "dest": "/dashboard.html"
+    },
+    {
+      "src": "/waitlist",
+      "dest": "/waitlist.html"
+    },
+    {
+      "src": "/(dashboard\\.html|waitlist\\.html|index\\.html)",
+      "dest": "/$1"
     },
     {
       "src": "/(.*)",
-      "dest": "server.js"
+      "dest": "/server.js"
     }
   ]
 }

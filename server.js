@@ -53,6 +53,7 @@ const supabase = createClient(
 
 // Статические файлы
 app.use('/src', express.static(path.join(__dirname, 'src')));
+app.use(express.static(path.join(__dirname)));
 
 // API endpoints
 app.post('/api/waitlist', async (req, res) => {
@@ -187,7 +188,15 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
+app.get('/dashboard', (req, res) => {
+    res.sendFile(path.join(__dirname, 'dashboard.html'));
+});
+
 app.get('/waitlist.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'waitlist.html'));
+});
+
+app.get('/waitlist', (req, res) => {
     res.sendFile(path.join(__dirname, 'waitlist.html'));
 });
 
